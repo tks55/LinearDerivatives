@@ -22,26 +22,32 @@ class Matrix {
         std::string ToString() const;    
         std::pair<size_t, size_t> GetDims() const;
         void ChangeEntry(size_t row, size_t col, double val);
+        Matrix T() const;
+        double Det() const;
+        Matrix REF() const;
+        //To Implement
+        Matrix RREF() const;
 
         //Operators
-        // Matrix operator*(const double scalar);
-        // Matrix operator*(const Matrix& rhs);
-        // Matrix& operator*=(const double scalar);
-        // Matrix& operator*=(const Matrix& rhs);
+        friend Matrix operator*(const Matrix& matrix, const double scalar);
+        friend Matrix operator*(const Matrix& lhs, const Matrix& rhs);
+        Matrix& operator*=(const double scalar);
+        Matrix& operator*=(const Matrix& rhs);
 
-        // Matrix operator/(const double scalar);
-        // Matrix& operator/=(const double scalar);
+        friend Matrix operator/(const Matrix& matrix, const double scalar);
+        Matrix& operator/=(const double scalar);
 
-        // Matrix operator+(const Matrix& rhs);
-        // Matrix& operator+=(const Matrix& rhs);
+        Matrix operator+(const Matrix& rhs) const;
+        Matrix& operator+=(const Matrix& rhs);
 
-        // Matrix operator-(const Matrix& rhs);
-        // Matrix& operator-=(const Matrix& rhs);
+        Matrix operator-(const Matrix& rhs) const;
+        Matrix& operator-=(const Matrix& rhs);
 
     private:
         size_t rows_;
         size_t cols_;
         double** array_;
+
 };
 
 #endif
