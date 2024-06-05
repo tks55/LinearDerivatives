@@ -31,7 +31,7 @@ A dynamic Matrix class that allows for:
 
 ## Improvements/Optimizations
 
-- Matrix Multiplication can further be improved to run in $\Theta(n^{\log_2(8)})$ using Strassen's Algorithm for Matrix Multiplication
+- Matrix Multiplication can further be improved to run in $\Theta(n^{\log_2(7)})$ using Strassen's Algorithm for Matrix Multiplication
 - Usage of smart pointers, rather than raw pointers to provide a layer of abstraction and prevent direct access to computer memory, limiting issues faced
 - More Comments!
 
