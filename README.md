@@ -36,4 +36,4 @@ A dynamic Matrix class that allows for:
 - More Comments!
 
 ## Known Errors
-- The REF Function is currently unable to process certain types of singular matrices (e.g. repeated/zero rows, zero column vectors).
+- The REF Function is currently unable to process certain types of singular matrices (e.g. repeated/zero rows, zero column vectors)
