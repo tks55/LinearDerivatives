@@ -3,7 +3,7 @@
 
 #include <utility>
 #include <string>
-
+#include <tuple>
 class Matrix {
     public:
 
@@ -25,6 +25,7 @@ class Matrix {
         Matrix T() const;
         double Det() const;
         Matrix REF() const;
+
         //To Implement
         Matrix RREF() const;
 
@@ -43,11 +44,18 @@ class Matrix {
         Matrix operator-(const Matrix& rhs) const;
         Matrix& operator-=(const Matrix& rhs);
 
+        bool operator==(const Matrix& rhs) const;
+
     private:
         size_t rows_;
         size_t cols_;
         double** array_;
 
+        //Constants
+        const double kPrecisionDelta = 0.00000001;
+
+        //Helper Functions
+        std::tuple<Matrix, Matrix, size_t> PTREF() const;
 };
 
 #endif

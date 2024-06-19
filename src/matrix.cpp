@@ -231,6 +231,20 @@ Matrix& Matrix::operator-=(const Matrix& rhs) {
     return (*this);
 }
 
+bool Matrix::operator==(const Matrix& rhs) const {
+    if ((rows_ != rhs.rows_) || (cols_ != rhs.cols_)) {
+        return (false);
+    }
+    for (size_t curr_row = 0; curr_row < rows_; curr_row++) {
+        for (size_t curr_col = 0; curr_col < cols_; curr_col++) {
+            if (std::abs(array_[curr_row][curr_col] - rhs.array_[curr_row][curr_col]) > kPrecisionDelta) {
+                return (false);
+            }
+        }
+    }
+    return (true);
+}
+
 Matrix Matrix::T() const {
     Matrix new_matrix = Matrix(cols_, rows_, 0, false);
     for (size_t curr_row = 0; curr_row < rows_; curr_row++) {
@@ -250,23 +264,68 @@ double Matrix::Det() const {
         return (array_[0][0] * array_[1][1]) - (array_[0][1] * array_[1][0]);
     }
     double determinant = 1.0;
-    Matrix ref_matrix = this->REF();
+    std::tuple<Matrix, Matrix, size_t> matrix_tuple = this->PTREF();
+    Matrix permute_matrix = std::get<0>(matrix_tuple);
+    Matrix ref_matrix = std::get<1>(matrix_tuple);
+    size_t row_swaps = std::get<2>(matrix_tuple);
     for (size_t diag = 0; diag < ref_matrix.rows_; diag++) {
         determinant *= ref_matrix.array_[diag][diag];
+        if ((determinant == 0) || (std::isnan(determinant))) {
+            return (0);
+        }
+    }
+    if (row_swaps % 2 == 1) {
+        determinant *= -1;
     }
     return (determinant);
 }
 
-Matrix Matrix::REF() const {
+std::tuple<Matrix, Matrix, size_t> Matrix::PTREF() const {
+    Matrix permutation_matrix = Matrix(rows_, rows_, 1, true);
     Matrix new_matrix = Matrix(*this);
+    size_t row_exchanges = 0;
     for (size_t root_row = 0; root_row < new_matrix.rows_ - 1; root_row++) {
+        Matrix epermutation_matrix = Matrix(rows_, rows_, 1, true);
+        size_t max_row = root_row;
+        size_t max_val = std::abs(new_matrix.array_[root_row][root_row]);
         for (size_t curr_row = root_row + 1; curr_row < new_matrix.rows_; curr_row++) {
             double curr_val = new_matrix.array_[curr_row][root_row];
-            double curr_scalar = (curr_val / new_matrix.array_[root_row][root_row]);
+            if (std::abs(curr_val) > max_val) {
+                max_row = curr_row;
+                max_val = std::abs(curr_val);
+            }
+        }
+        if (max_row != root_row) {
+            epermutation_matrix.array_[root_row][root_row] = 0;
+            epermutation_matrix.array_[max_row][max_row] = 0;
+            epermutation_matrix.array_[root_row][max_row] = 1;
+            epermutation_matrix.array_[max_row][root_row] = 1;
+            row_exchanges++;
+        }
+        permutation_matrix = epermutation_matrix * permutation_matrix;
+        new_matrix = epermutation_matrix * new_matrix;
+        for (size_t curr_row = root_row + 1; curr_row < new_matrix.rows_; curr_row++) {
+            double curr_val = new_matrix.array_[curr_row][root_row];
+            double curr_div = new_matrix.array_[root_row][root_row];
+            double curr_scalar = (curr_val / curr_div);
             for (size_t curr_col = 0; curr_col < new_matrix.cols_; curr_col++) {
                 new_matrix.array_[curr_row][curr_col] -= (curr_scalar * new_matrix.array_[root_row][curr_col]); 
             }
         }
     }
-    return (new_matrix);
+    std::tuple<Matrix, Matrix, size_t> matrix_tuple{permutation_matrix, new_matrix, row_exchanges};
+    return (matrix_tuple);
+}
+
+Matrix Matrix::REF() const {
+    std::tuple<Matrix, Matrix, size_t> matrix_tuple = this->PTREF();
+    for (size_t curr_row = 0; curr_row < rows_; curr_row++) {
+        for (size_t curr_col = 0; curr_col < rows_; curr_col++) {
+            if (std::isnan(array_[curr_row][curr_col])) {
+                throw std::invalid_argument("ZERO COLUMN VECTOR DETECTED--NOT CURRENTLY ABLE TO DETERMINE REF! (MATRIX IS SINGULAR)");
+            }
+        }
+    }
+    Matrix ref_matrix = std::get<1>(matrix_tuple);
+    return (ref_matrix);
 }
