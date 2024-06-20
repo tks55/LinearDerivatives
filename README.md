@@ -36,5 +36,4 @@ A dynamic Matrix class that allows for:
 - More Comments!
 
 ## Known Errors
-- The REF Function currently runs into errors if a 0-value is evaluated on the diagonal (can be resolved through the determination of a Permutation Matrix)
-- The Determinant Function may run into errors originating as a result of the errors in the REF Function
+- The REF Function is currently unable to process certain types of singular matrices (e.g. repeated/zero rows, zero column vectors)
