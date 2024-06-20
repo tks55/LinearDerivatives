@@ -25,9 +25,11 @@ class Matrix {
         Matrix T() const;
         double Det() const;
         Matrix REF() const;
+        double GetEntry(size_t row, size_t col) const;
 
         //To Implement
         Matrix RREF() const;
+        Matrix Inv() const;
 
         //Operators
         friend Matrix operator*(const Matrix& matrix, const double scalar);
@@ -47,6 +49,7 @@ class Matrix {
         bool operator==(const Matrix& rhs) const;
 
     private:
+        //Instance Variables
         size_t rows_;
         size_t cols_;
         double** array_;

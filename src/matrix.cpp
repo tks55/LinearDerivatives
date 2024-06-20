@@ -329,3 +329,8 @@ Matrix Matrix::REF() const {
     Matrix ref_matrix = std::get<1>(matrix_tuple);
     return (ref_matrix);
 }
+
+double Matrix::GetEntry(size_t row, size_t col) const {
+    double entry_value = array_[row][col];
+    return (entry_value);
+}
