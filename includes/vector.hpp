@@ -8,9 +8,13 @@ class Vector : public Matrix {
         //Constructors
         Vector(size_t size = 2, double starting_val = 1);
         Vector(size_t size, double* init_array);
+        Vector(const Matrix& rhs);
 
         //Member Functions
         double Dot(const Vector& rhs);
+        static double Dot(const Vector& lhs, const Vector& rhs);
+        Vector Norm();
+        static Vector Norm(const Vector& vect);
     private:
         //N/A
 };
