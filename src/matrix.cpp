@@ -367,14 +367,14 @@ Matrix Matrix::Inv() const {
 
 Matrix Matrix::REF() const {
     std::tuple<Matrix, Matrix, Matrix, size_t> matrix_tuple = this->PTREF();
-    for (size_t curr_row = 0; curr_row < rows_; curr_row++) {
-        for (size_t curr_col = 0; curr_col < rows_; curr_col++) {
-            if (std::isnan(array_[curr_row][curr_col])) {
-                throw std::invalid_argument("ZERO COLUMN VECTOR DETECTED--NOT CURRENTLY ABLE TO DETERMINE REF! (MATRIX IS SINGULAR)");
+    Matrix ref_matrix = std::get<2>(matrix_tuple);
+    for (size_t curr_row = 0; curr_row < ref_matrix.rows_; curr_row++) {
+        for (size_t curr_col = 0; curr_col < ref_matrix.cols_; curr_col++) {
+            if (std::isnan(ref_matrix.array_[curr_row][curr_col])) {
+                throw std::invalid_argument("ZERO COLUMN/ROW VECTOR DETECTED--NOT CURRENTLY ABLE TO DETERMINE REF! (MATRIX IS SINGULAR)");
             }
         }
     }
-    Matrix ref_matrix = std::get<2>(matrix_tuple);
     return (ref_matrix);
 }
 
