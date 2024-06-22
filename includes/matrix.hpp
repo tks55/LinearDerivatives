@@ -26,13 +26,14 @@ class Matrix {
         double Det() const;
         Matrix REF() const;
         double GetEntry(size_t row, size_t col) const;
+        Matrix Inv() const;
 
         //To Implement
         Matrix RREF() const;
-        Matrix Inv() const;
 
         //Operators
         friend Matrix operator*(const Matrix& matrix, const double scalar);
+        friend Matrix operator*(const double scalar, const Matrix& matrix);
         friend Matrix operator*(const Matrix& lhs, const Matrix& rhs);
         Matrix& operator*=(const double scalar);
         Matrix& operator*=(const Matrix& rhs);
@@ -58,7 +59,7 @@ class Matrix {
         const double kPrecisionDelta = 0.00000001;
 
         //Helper Functions
-        std::tuple<Matrix, Matrix, size_t> PTREF() const;
+        std::tuple<Matrix, Matrix, Matrix, size_t> PTREF() const;
 };
 
 #endif

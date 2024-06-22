@@ -15,6 +15,10 @@ class Vector : public Matrix {
         static double Dot(const Vector& lhs, const Vector& rhs);
         Vector Norm();
         static Vector Norm(const Vector& vect);
+        Vector ProjectOnto(const Vector& rhs);
+        static Vector ProjectOnto(const Vector& lhs, const Vector& rhs);
+        double Magnitude();
+        static double Magnitude(const Vector& vect);
     private:
         //N/A
 };

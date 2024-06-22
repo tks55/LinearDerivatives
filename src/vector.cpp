@@ -39,10 +39,32 @@ Vector Vector::Norm() {
 }
 
 Vector Vector::Norm(const Vector& vect) {
-    double mag = std::sqrt(Dot(vect, vect));
+    double mag = Magnitude(vect);
     if (mag == 0) {
         throw std::invalid_argument("ZERO VECTOR--UNABLE TO NORMALIZE VECTOR!");
     }
     Vector normal_vect = (vect / mag);
     return (normal_vect);
+}
+
+Vector Vector::ProjectOnto(const Vector& rhs) {
+    Vector projection_vector = ProjectOnto(*this, rhs);
+    return (projection_vector);
+}
+
+Vector Vector::ProjectOnto(const Vector& lhs, const Vector& rhs) {
+    double product = Dot(lhs, rhs);
+    product /= Dot(rhs, rhs);
+    Vector projection_vector = product * rhs;
+    return (projection_vector);
+}
+
+double Vector::Magnitude() {
+    double mag = Magnitude(*this);
+    return (mag);
+}
+
+double Vector::Magnitude(const Vector& vect) {
+    double mag = std::sqrt(Dot(vect, vect));
+    return (mag);
 }

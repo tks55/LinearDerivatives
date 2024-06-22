@@ -148,6 +148,11 @@ Matrix operator*(const Matrix& matrix, const double scalar) {
     return (new_matrix);
 }
 
+Matrix operator*(const double scalar, const Matrix& matrix) {
+    Matrix new_matrix = matrix * scalar;
+    return (new_matrix);
+}
+
 Matrix operator*(const Matrix& lhs, const Matrix& rhs) {
     if (lhs.cols_ != rhs.rows_) {
         throw std::invalid_argument("INVALID MATRIX MULTIPLICATION DIMENSIONS!");
@@ -162,7 +167,6 @@ Matrix operator*(const Matrix& lhs, const Matrix& rhs) {
     }
     return (new_matrix);
 }
-
 
 Matrix& Matrix::operator*=(const double scalar) {
     for (size_t curr_row = 0; curr_row < rows_; curr_row++) {
@@ -264,10 +268,10 @@ double Matrix::Det() const {
         return (array_[0][0] * array_[1][1]) - (array_[0][1] * array_[1][0]);
     }
     double determinant = 1.0;
-    std::tuple<Matrix, Matrix, size_t> matrix_tuple = this->PTREF();
+    std::tuple<Matrix, Matrix, Matrix, size_t> matrix_tuple = this->PTREF();
     Matrix permute_matrix = std::get<0>(matrix_tuple);
-    Matrix ref_matrix = std::get<1>(matrix_tuple);
-    size_t row_swaps = std::get<2>(matrix_tuple);
+    Matrix ref_matrix = std::get<2>(matrix_tuple);
+    size_t row_swaps = std::get<3>(matrix_tuple);
     for (size_t diag = 0; diag < ref_matrix.rows_; diag++) {
         determinant *= ref_matrix.array_[diag][diag];
         if ((determinant == 0) || (std::isnan(determinant))) {
@@ -280,16 +284,17 @@ double Matrix::Det() const {
     return (determinant);
 }
 
-std::tuple<Matrix, Matrix, size_t> Matrix::PTREF() const {
+std::tuple<Matrix, Matrix, Matrix, size_t> Matrix::PTREF() const {
     Matrix permutation_matrix = Matrix(rows_, rows_, 1, true);
-    Matrix new_matrix = Matrix(*this);
+    Matrix lt_matrix = Matrix(rows_, rows_, 1, true);
+    Matrix ut_matrix = Matrix(*this);
     size_t row_exchanges = 0;
-    for (size_t root_row = 0; root_row < new_matrix.rows_ - 1; root_row++) {
+    for (size_t root_row = 0; root_row < ut_matrix.rows_ - 1; root_row++) {
         Matrix epermutation_matrix = Matrix(rows_, rows_, 1, true);
         size_t max_row = root_row;
-        size_t max_val = std::abs(new_matrix.array_[root_row][root_row]);
-        for (size_t curr_row = root_row + 1; curr_row < new_matrix.rows_; curr_row++) {
-            double curr_val = new_matrix.array_[curr_row][root_row];
+        size_t max_val = std::abs(ut_matrix.array_[root_row][root_row]);
+        for (size_t curr_row = root_row + 1; curr_row < ut_matrix.rows_; curr_row++) {
+            double curr_val = ut_matrix.array_[curr_row][root_row];
             if (std::abs(curr_val) > max_val) {
                 max_row = curr_row;
                 max_val = std::abs(curr_val);
@@ -303,22 +308,65 @@ std::tuple<Matrix, Matrix, size_t> Matrix::PTREF() const {
             row_exchanges++;
         }
         permutation_matrix = epermutation_matrix * permutation_matrix;
-        new_matrix = epermutation_matrix * new_matrix;
-        for (size_t curr_row = root_row + 1; curr_row < new_matrix.rows_; curr_row++) {
-            double curr_val = new_matrix.array_[curr_row][root_row];
-            double curr_div = new_matrix.array_[root_row][root_row];
+        ut_matrix = epermutation_matrix * ut_matrix;
+    }
+    for (size_t root_row = 0; root_row < ut_matrix.rows_ - 1; root_row++) {
+        for (size_t curr_row = root_row + 1; curr_row < ut_matrix.rows_; curr_row++) {
+            double curr_val = ut_matrix.array_[curr_row][root_row];
+            double curr_div = ut_matrix.array_[root_row][root_row];
             double curr_scalar = (curr_val / curr_div);
-            for (size_t curr_col = 0; curr_col < new_matrix.cols_; curr_col++) {
-                new_matrix.array_[curr_row][curr_col] -= (curr_scalar * new_matrix.array_[root_row][curr_col]); 
+            lt_matrix.array_[curr_row][root_row] += curr_scalar;
+            for (size_t curr_col = 0; curr_col < ut_matrix.cols_; curr_col++) {
+                ut_matrix.array_[curr_row][curr_col] -= (curr_scalar * ut_matrix.array_[root_row][curr_col]); 
             }
         }
     }
-    std::tuple<Matrix, Matrix, size_t> matrix_tuple{permutation_matrix, new_matrix, row_exchanges};
+    std::tuple<Matrix, Matrix, Matrix, size_t> matrix_tuple{permutation_matrix, lt_matrix, ut_matrix, row_exchanges};
     return (matrix_tuple);
 }
 
+Matrix Matrix::Inv() const {
+    std::tuple<Matrix, Matrix, Matrix, double> matrix_tuple = this->PTREF();
+    Matrix permutation_matrix = std::get<0>(matrix_tuple);
+    Matrix lt_matrix = std::get<1>(matrix_tuple);
+    Matrix ut_matrix = std::get<2>(matrix_tuple);
+    Matrix ut_matrix_inverse = Matrix(rows_, rows_, 1, true);
+    Matrix lt_matrix_inverse = Matrix(rows_, rows_, 1, true);
+    for (size_t root_row = 0; root_row < rows_ - 1; root_row++) {
+        size_t root_row_inv = ut_matrix.rows_ - root_row - 1;
+        for (size_t curr_row = root_row + 1; curr_row < rows_; curr_row++) {
+            size_t curr_row_inv = ut_matrix.rows_ - curr_row - 1;
+            double curr_val_lt = lt_matrix.array_[curr_row][root_row];
+            double curr_div_lt = lt_matrix.array_[root_row][root_row];
+            double curr_val_ut = ut_matrix.array_[curr_row_inv][root_row_inv];
+            double curr_div_ut = ut_matrix.array_[root_row_inv][root_row_inv];
+            if ((curr_div_ut == 0 || std::isnan(curr_div_ut)) || (curr_div_lt == 0 || std::isnan(curr_div_lt))) {
+                throw (std::invalid_argument("CANNOT CALCULATE INVERSE--SINGULAR MATRIX!"));
+            }
+            double curr_scalar_lt = (curr_val_lt / curr_div_lt);
+            double curr_scalar_ut = (curr_val_ut / curr_div_ut);
+            for (size_t curr_col = 0; curr_col < cols_; curr_col++) {
+                lt_matrix.array_[curr_row][curr_col] -= (curr_scalar_lt * lt_matrix.array_[root_row][curr_col]); 
+                ut_matrix.array_[curr_row_inv][curr_col] -= (curr_scalar_ut * ut_matrix.array_[root_row_inv][curr_col]); 
+                lt_matrix_inverse.array_[curr_row][curr_col] -= (curr_scalar_lt * lt_matrix_inverse.array_[root_row][curr_col]);
+                ut_matrix_inverse.array_[curr_row_inv][curr_col] -= (curr_scalar_ut * ut_matrix_inverse.array_[root_row_inv][curr_col]);
+            }
+        }
+    }
+    for (size_t diag = 0; diag < ut_matrix.rows_; diag++) {
+        double inv_scalar_lt = (1 / lt_matrix.array_[diag][diag]);
+        double inv_scalar_ut = (1 / ut_matrix.array_[diag][diag]);
+        for (size_t curr_col = 0; curr_col < ut_matrix.cols_; curr_col++) {
+            lt_matrix_inverse.array_[diag][curr_col] *= inv_scalar_lt;
+            ut_matrix_inverse.array_[diag][curr_col] *= inv_scalar_ut;
+        }
+    }
+    Matrix inverse_matrix = ut_matrix_inverse * lt_matrix_inverse * permutation_matrix;
+    return (inverse_matrix);
+}
+
 Matrix Matrix::REF() const {
-    std::tuple<Matrix, Matrix, size_t> matrix_tuple = this->PTREF();
+    std::tuple<Matrix, Matrix, Matrix, size_t> matrix_tuple = this->PTREF();
     for (size_t curr_row = 0; curr_row < rows_; curr_row++) {
         for (size_t curr_col = 0; curr_col < rows_; curr_col++) {
             if (std::isnan(array_[curr_row][curr_col])) {
@@ -326,7 +374,7 @@ Matrix Matrix::REF() const {
             }
         }
     }
-    Matrix ref_matrix = std::get<1>(matrix_tuple);
+    Matrix ref_matrix = std::get<2>(matrix_tuple);
     return (ref_matrix);
 }
 
