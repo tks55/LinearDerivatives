@@ -6,7 +6,7 @@ Vector::Vector(size_t size, double starting_val): Matrix(size, 1, starting_val, 
 
 Vector::Vector(size_t size, double* init_array): Matrix(size, 1, 0, false){
     for (size_t curr_row = 0; curr_row < size; curr_row++)  {
-        this->ChangeEntry(curr_row, 0, init_array[curr_row]);
+        this->ChangeEntry(curr_row, init_array[curr_row]);
     }
 }
 
@@ -28,7 +28,7 @@ double Vector::Dot(const Vector& lhs, const Vector& rhs) {
     }
     double product = 0.0;
     for (size_t curr_row = 0; curr_row < size; curr_row++) {
-        product += (lhs.GetEntry(curr_row, 0) * rhs.GetEntry(curr_row, 0));
+        product += (lhs.GetEntry(curr_row) * rhs.GetEntry(curr_row));
     }
     return (product);
 }
@@ -67,4 +67,23 @@ double Vector::Magnitude() {
 double Vector::Magnitude(const Vector& vect) {
     double mag = std::sqrt(Dot(vect, vect));
     return (mag);
+}
+
+Vector Vector::RandomVectorFloat(size_t seed, size_t size, double lower_bound, double upper_bound) {
+    Vector new_vect = RandomMatrixFloat(seed, size, 1, lower_bound, upper_bound);
+    return (new_vect);
+}
+
+Vector Vector::RandomVectorInt(size_t seed, size_t size, int lower_bound, int upper_bound) {
+    Vector new_vect = RandomMatrixInt(seed, size, 1, lower_bound, upper_bound);
+    return (new_vect);
+}
+
+void Vector::ChangeEntry(size_t entry, double val) {
+    this->Matrix::ChangeEntry(entry, 0, val);
+}
+
+double Vector::GetEntry(size_t entry) const {
+    double val = this->Matrix::GetEntry(entry, 0);
+    return (val);
 }

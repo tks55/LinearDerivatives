@@ -4,6 +4,7 @@
 #include <utility>
 #include <string>
 #include <tuple>
+#include <random>
 class Matrix {
     public:
 
@@ -27,10 +28,11 @@ class Matrix {
         Matrix REF() const;
         double GetEntry(size_t row, size_t col) const;
         Matrix Inv() const;
+        static Matrix RandomMatrixFloat(size_t seed, size_t num_rows = 2, size_t num_cols = 2, double lower_bound = 0, double upper_bound = 10);
+        static Matrix RandomMatrixInt(size_t seed, size_t num_rows = 2, size_t num_cols = 2, int lower_bound = 0, int upper_bound = 10);
 
         //To Implement
         Matrix RREF() const;
-
         //Operators
         friend Matrix operator*(const Matrix& matrix, const double scalar);
         friend Matrix operator*(const double scalar, const Matrix& matrix);

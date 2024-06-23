@@ -2,6 +2,7 @@
 #include <stdexcept>
 #include <cmath>
 
+/*Constructor (by default/starting parameters)*/
 Matrix::Matrix(size_t num_rows, size_t num_cols, double starting_val, bool diag): rows_(num_rows), cols_(num_cols) {
     if ((rows_ <= 0) || (cols_ <= 0)) {
         throw std::invalid_argument("INVALID DIMENSION MATRIX!");
@@ -27,6 +28,7 @@ Matrix::Matrix(size_t num_rows, size_t num_cols, double starting_val, bool diag)
     }
 }
 
+/*Constructor (by free store array)*/
 Matrix::Matrix(size_t num_rows, size_t num_cols, double** init_array): rows_(num_rows), cols_(num_cols) {
     if ((rows_ <= 0) || (cols_ <= 0) || (init_array == nullptr)) {
         throw std::invalid_argument("INVALID DIMENSION MATRIX!");
@@ -34,6 +36,7 @@ Matrix::Matrix(size_t num_rows, size_t num_cols, double** init_array): rows_(num
     array_ = init_array;
 }
 
+/*Destructor*/
 Matrix::~Matrix() {
     for (size_t curr_row = 0; curr_row < rows_; curr_row++) {
         delete[] array_[curr_row];
@@ -42,6 +45,7 @@ Matrix::~Matrix() {
     array_ = nullptr;
 }
 
+/*Copy Constructor*/
 Matrix::Matrix(const Matrix& rhs) {
     rows_ = rhs.rows_;
     cols_ = rhs.cols_;
@@ -56,6 +60,7 @@ Matrix::Matrix(const Matrix& rhs) {
     }
 }
 
+/*Copy Assignment Operator*/
 Matrix& Matrix::operator=(const Matrix& rhs) {
     if (this == &rhs) {
         return (*this);
@@ -80,6 +85,7 @@ Matrix& Matrix::operator=(const Matrix& rhs) {
     return (*this);
 }
 
+/*Move Constructor*/
 Matrix::Matrix(Matrix&& rhs) {
     rows_ = rhs.rows_;
     cols_ = rhs.cols_;
@@ -90,6 +96,7 @@ Matrix::Matrix(Matrix&& rhs) {
     rhs.array_ = nullptr;
 }
 
+/*Move Assignment Operator*/
 Matrix& Matrix::operator=(Matrix&& rhs) {
     if (this == &rhs) {
         return (*this);
@@ -110,6 +117,7 @@ Matrix& Matrix::operator=(Matrix&& rhs) {
     return (*this);
 }
 
+/*Parameters: None; Desc: Returns a representation of the current Matrix as a string.*/
 std::string Matrix::ToString() const {
     std::string output = "";
     for (size_t curr_row = 0; curr_row < rows_; curr_row++) {
@@ -126,11 +134,14 @@ std::string Matrix::ToString() const {
     return (output);
 }
 
+/*Parameters: None; Desc: Returns the dimensions of the current matrix in (rows, cols) format.*/
 std::pair<size_t, size_t> Matrix::GetDims() const {
     std::pair<double, double> dims{rows_, cols_};
     return (dims);
 }
 
+/*Parameters: size_t row, size_t col, double val; Desc: Changes the value of a given matrix at (row, col) to
+val. Zero-Indexed.*/
 void Matrix::ChangeEntry(size_t row, size_t col, double val) {
     if (((row < 0) || (row >= rows_)) || ((col < 0) || (col >= cols_))) {
         throw std::invalid_argument("OUT OF BOUNDS ERROR!");
@@ -138,6 +149,8 @@ void Matrix::ChangeEntry(size_t row, size_t col, double val) {
     array_[row][col] = val;
 }
 
+/*Parameters: const Matrix& matrix, const double scalar; Desc: Multiplies all values of the current matrix
+by a constant scalar, storing the result in a new matrix.*/
 Matrix operator*(const Matrix& matrix, const double scalar) {
     Matrix new_matrix = Matrix(matrix.rows_, matrix.cols_);
     for (size_t curr_row = 0; curr_row < matrix.rows_; curr_row++) {
@@ -148,11 +161,15 @@ Matrix operator*(const Matrix& matrix, const double scalar) {
     return (new_matrix);
 }
 
+/*Parameters: const double scalar, const Matrix& matrix; Desc: Multiplies all values of the current matrix
+by a constant scalar, storing the result in a new matrix.*/
 Matrix operator*(const double scalar, const Matrix& matrix) {
     Matrix new_matrix = matrix * scalar;
     return (new_matrix);
 }
 
+/*Parameters: const Matrix& lhs, const Matrix& rhs; Desc: Multiplies the rhs matrix on the right of the lhs
+ matrix, given correct dimensions, storing the value of the matrix multiplication in a new matrix.*/
 Matrix operator*(const Matrix& lhs, const Matrix& rhs) {
     if (lhs.cols_ != rhs.rows_) {
         throw std::invalid_argument("INVALID MATRIX MULTIPLICATION DIMENSIONS!");
@@ -168,6 +185,8 @@ Matrix operator*(const Matrix& lhs, const Matrix& rhs) {
     return (new_matrix);
 }
 
+/*Parameters: const double scalar; Desc: Multiplies all values of the current matrix by a constant 
+scalar, storing the result in the current matrix.*/
 Matrix& Matrix::operator*=(const double scalar) {
     for (size_t curr_row = 0; curr_row < rows_; curr_row++) {
         for (size_t curr_col = 0; curr_col < cols_; curr_col++) {
@@ -177,12 +196,16 @@ Matrix& Matrix::operator*=(const double scalar) {
     return (*this);
 }
 
+/*Parameters: const Matrix& rhs; Desc: Multiplies the rhs matrix on the right of the current matrix, 
+given correct dimensions, storing the value of the matrix multiplication in the current matrix.*/
 Matrix& Matrix::operator*=(const Matrix& rhs) {
     Matrix new_matrix = *this * rhs;
     *this = std::move(new_matrix);
     return (*this);
 }
 
+/*Parameters: const Matrix& matrix, const double scalar; Desc: Divides all values of a given matrix 
+by a constant scalar, storing the result in a new matrix.*/
 Matrix operator/(const Matrix& matrix, const double scalar) {
     if (scalar == 0) {
         throw new std::invalid_argument("DIVIDE BY ZERO ERROR!");
@@ -191,6 +214,8 @@ Matrix operator/(const Matrix& matrix, const double scalar) {
     return (new_matrix);
 }
 
+/*Parameters: const double scalar; Desc: Divides all values of the current matrix by a constant 
+scalar, storing the result in the current matrix.*/
 Matrix& Matrix::operator/=(const double scalar) {
     if (scalar == 0) {
         throw new std::invalid_argument("DIVIDE BY ZERO ERROR!");
@@ -199,6 +224,8 @@ Matrix& Matrix::operator/=(const double scalar) {
     return (*this);
 }
 
+/*Parameters: const Matrix& rhs; Desc: Adds the rhs matrix to the current matrix, storing the 
+result in a new matrix.*/
 Matrix Matrix::operator+(const Matrix& rhs) const {
     if ((rows_ != rhs.rows_) || (cols_ != rhs.cols_)) {
         throw std::invalid_argument("INVALID MATRIX ADDITION/SUBTRACTION DIMENSIONS!");
@@ -212,6 +239,8 @@ Matrix Matrix::operator+(const Matrix& rhs) const {
     return (new_matrix);
 }
 
+/*Parameters: const Matrix& rhs; Desc: Adds the rhs matrix to the current matrix, storing the 
+result in the current matrix.*/
 Matrix& Matrix::operator+=(const Matrix& rhs)  {
     if ((rows_ != rhs.rows_) || (cols_ != rhs.cols_)) {
         throw std::invalid_argument("INVALID MATRIX ADDITION/SUBTRACTION DIMENSIONS!");
@@ -224,17 +253,23 @@ Matrix& Matrix::operator+=(const Matrix& rhs)  {
     return (*this);
 }
 
+/*Parameters: const Matrix& rhs; Desc: Subtracts the rhs matrix from the current matrix, storing 
+the result in a new matrix.*/
 Matrix Matrix::operator-(const Matrix& rhs) const {
     Matrix new_matrix = Matrix(*this);
     new_matrix += (rhs * -1.0);
     return (new_matrix);
 }
 
+/*Parameters: const Matrix& rhs; Desc: Subtracts the rhs matrix from the current matrix, storing 
+the result in the current matrix.*/
 Matrix& Matrix::operator-=(const Matrix& rhs) {
     *this += (rhs * - 1.0);
     return (*this);
 }
 
+/*Parameters: const Matrix& rhs; Desc: Checks to determine if the values of the current matrix 
+are equivalent (adjusting for some error) to the values of a given matrix, determining equality.*/
 bool Matrix::operator==(const Matrix& rhs) const {
     if ((rows_ != rhs.rows_) || (cols_ != rhs.cols_)) {
         return (false);
@@ -249,6 +284,7 @@ bool Matrix::operator==(const Matrix& rhs) const {
     return (true);
 }
 
+/*Parameters: None; Desc: Returns the Transpose of the current matrix.*/
 Matrix Matrix::T() const {
     Matrix new_matrix = Matrix(cols_, rows_, 0, false);
     for (size_t curr_row = 0; curr_row < rows_; curr_row++) {
@@ -259,6 +295,7 @@ Matrix Matrix::T() const {
     return (new_matrix);
 }
 
+/*Parameters: None; Desc: Returns the determinant of the current square (n x n) matrix.*/
 double Matrix::Det() const {
     if (rows_ != cols_) {
         throw std::invalid_argument("CANNOT DETERMINE DETERMINANT--NONSQUARE MATRIX!");
@@ -284,6 +321,8 @@ double Matrix::Det() const {
     return (determinant);
 }
 
+/*PRIVATE/HELPER FUNCTION; Parameters: None; Desc: Returns a PLU Decomposition of the current Matrix, 
+along with the number of Row Exchanges/Swaps necessary to reach this form.*/
 std::tuple<Matrix, Matrix, Matrix, size_t> Matrix::PTREF() const {
     Matrix permutation_matrix = Matrix(rows_, rows_, 1, true);
     Matrix lt_matrix = Matrix(rows_, rows_, 1, true);
@@ -325,6 +364,7 @@ std::tuple<Matrix, Matrix, Matrix, size_t> Matrix::PTREF() const {
     return (matrix_tuple);
 }
 
+/*Parameters: none; Desc: Returns the inverse of an invertible (non-singular) Matrix.*/
 Matrix Matrix::Inv() const {
     std::tuple<Matrix, Matrix, Matrix, double> matrix_tuple = this->PTREF();
     Matrix permutation_matrix = std::get<0>(matrix_tuple);
@@ -365,6 +405,7 @@ Matrix Matrix::Inv() const {
     return (inverse_matrix);
 }
 
+/*Parameters: none; Desc: Returns the REF of all non-singular, and some singular matrices.*/
 Matrix Matrix::REF() const {
     std::tuple<Matrix, Matrix, Matrix, size_t> matrix_tuple = this->PTREF();
     Matrix ref_matrix = std::get<2>(matrix_tuple);
@@ -378,7 +419,52 @@ Matrix Matrix::REF() const {
     return (ref_matrix);
 }
 
+/*Parameters: size_t row, size_t col; Desc: Returns the value of a given matrix at (row, col). Zero-Indexed.*/
 double Matrix::GetEntry(size_t row, size_t col) const {
     double entry_value = array_[row][col];
     return (entry_value);
+}
+
+/*Parameters: size_t seed, size_t num_rows, size_t num_cols, double lower_bound, double upper_bound;
+Desc: Creates a Random Matrix of Floats of size (num_rows, num_cols) using a given seed. Uses the 64-Bit
+implementation of the Mersenne Twister PRNG, applied to a uniform real distribution (upper bound exclusive).*/
+Matrix Matrix::RandomMatrixFloat(size_t seed, size_t num_rows, size_t num_cols, double lower_bound, double upper_bound) {
+    std::mt19937_64 prng(seed);
+    std::uniform_real_distribution uniform_real(lower_bound, upper_bound);
+    if ((num_rows <= 0) || (num_cols <= 0)) {
+        throw std::invalid_argument("INVALID DIMENSION MATRIX!");
+    }
+    double** init_array = new double* [num_rows];
+    for (size_t curr_row = 0; curr_row < num_rows; curr_row++) {
+        init_array[curr_row] = new double[num_cols];
+    }
+    for (size_t curr_row = 0; curr_row < num_rows; curr_row++) {
+        for (size_t curr_col = 0; curr_col < num_cols; curr_col++) {
+            init_array[curr_row][curr_col] = uniform_real(prng);
+        }
+    }
+    Matrix new_matrix = Matrix(num_rows, num_cols, init_array);
+    return (new_matrix);
+}
+
+/*Parameters: size_t seed, size_t num_rows, size_t num_cols, double lower_bound, double upper_bound;
+Desc: Creates a Random Matrix of Integers of size (num_rows, num_cols) using a given seed. Uses the 64-Bit
+implementation of the Mersenne Twister PRNG, applied to a uniform integer distribution (upper bound inclusive).*/
+Matrix Matrix::RandomMatrixInt(size_t seed, size_t num_rows, size_t num_cols, int lower_bound, int upper_bound) {
+    std::mt19937_64 prng(seed);
+    std::uniform_int_distribution uniform_int(lower_bound, upper_bound);
+    if ((num_rows <= 0) || (num_cols <= 0)) {
+        throw std::invalid_argument("INVALID DIMENSION MATRIX!");
+    }
+    double** init_array = new double* [num_rows];
+    for (size_t curr_row = 0; curr_row < num_rows; curr_row++) {
+        init_array[curr_row] = new double[num_cols];
+    }
+    for (size_t curr_row = 0; curr_row < num_rows; curr_row++) {
+        for (size_t curr_col = 0; curr_col < num_cols; curr_col++) {
+            init_array[curr_row][curr_col] = uniform_int(prng);
+        }
+    }
+    Matrix new_matrix = Matrix(num_rows, num_cols, init_array);
+    return (new_matrix);
 }
