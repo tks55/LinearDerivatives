@@ -19,8 +19,8 @@ class Vector : public Matrix {
         static Vector ProjectOnto(const Vector& lhs, const Vector& rhs);
         double Magnitude();
         static double Magnitude(const Vector& vect);
-        static Vector RandomVectorFloat(size_t seed, size_t size, double lower_bound = 0, double upper_bound = 10);
-        static Vector RandomVectorInt(size_t seed, size_t size, int lower_bound = 0, int upper_bound = 10);
+        static Vector RandomVectorFloat(size_t seed, size_t size = 2, double lower_bound = 0, double upper_bound = 10);
+        static Vector RandomVectorInt(size_t seed, size_t size = 2, int lower_bound = 0, int upper_bound = 10);
         void ChangeEntry(size_t entry, double val);
         double GetEntry(size_t entry) const;
 

@@ -447,7 +447,7 @@ Matrix Matrix::RandomMatrixFloat(size_t seed, size_t num_rows, size_t num_cols, 
     return (new_matrix);
 }
 
-/*Parameters: size_t seed, size_t num_rows, size_t num_cols, double lower_bound, double upper_bound;
+/*Parameters: size_t seed, size_t num_rows, size_t num_cols, int lower_bound, int upper_bound;
 Desc: Creates a Random Matrix of Integers of size (num_rows, num_cols) using a given seed. Uses the 64-Bit
 implementation of the Mersenne Twister PRNG, applied to a uniform integer distribution (upper bound inclusive).*/
 Matrix Matrix::RandomMatrixInt(size_t seed, size_t num_rows, size_t num_cols, int lower_bound, int upper_bound) {
