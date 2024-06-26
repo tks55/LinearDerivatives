@@ -10,6 +10,7 @@ Vector::Vector(size_t size, double* init_array): Matrix(size, 1, 0, false){
     for (size_t curr_row = 0; curr_row < size; curr_row++)  {
         this->ChangeEntry(curr_row, init_array[curr_row]);
     }
+    delete[] init_array;
 }
 
 /*Cast Constructor (by matrix input)*/

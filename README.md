@@ -17,6 +17,16 @@ A dynamic Matrix class that allows for:
 - Calculating the Transpose of a Matrix
 - Determining the Determinant of a Matrix
 - Determining a Row Echelon Form of a Matrix
+- Determining the Inverse of a Matrix
+- Generation of a Random Matrix (given a seed value) of either Floats or Integers
+
+A dynamic Vector class allowing for:
+
+- The initalization of a Vector with various constructors (e.g. default, 1D Array)
+- Calculating the Vector Dot Product
+- Calculating the Projection of a Vector onto another Vector
+- Calculating a Normalized/Unitized Vector
+- Generation of a Random Vector (given a seed value) of either Floats or Integers
 
 ## Future Features
 
@@ -37,3 +47,4 @@ A dynamic Matrix class that allows for:
 
 ## Known Errors
 - The REF Function is currently unable to process certain types of singular matrices (e.g. repeated/zero rows, zero column vectors)
+- THE REF, Det, and Inv Functions are unable to process some very rare edge cases (e.g. some lower triangular matrices).

@@ -339,6 +339,7 @@ std::tuple<Matrix, Matrix, Matrix, size_t> Matrix::PTREF() const {
                 max_val = std::abs(curr_val);
             }
         }
+        //to change--implementing an iterative method to reduce runtime
         if (max_row != root_row) {
             epermutation_matrix.array_[root_row][root_row] = 0;
             epermutation_matrix.array_[max_row][max_row] = 0;
