@@ -33,6 +33,7 @@ class Matrix {
 
         //To Implement
         Matrix RREF() const;
+
         //Operators
         friend Matrix operator*(const Matrix& matrix, const double scalar);
         friend Matrix operator*(const double scalar, const Matrix& matrix);
@@ -62,6 +63,7 @@ class Matrix {
 
         //Helper Functions
         std::tuple<Matrix, Matrix, Matrix, size_t> PTREF() const;
+        static Matrix PermutationInverse(const Matrix& matrix);
 };
 
 #endif

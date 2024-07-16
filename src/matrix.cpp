@@ -329,7 +329,6 @@ std::tuple<Matrix, Matrix, Matrix, size_t> Matrix::PTREF() const {
     Matrix ut_matrix = Matrix(*this);
     size_t row_exchanges = 0;
     for (size_t root_row = 0; root_row < ut_matrix.rows_ - 1; root_row++) {
-        Matrix epermutation_matrix = Matrix(rows_, rows_, 1, true);
         size_t max_row = root_row;
         size_t max_val = std::abs(ut_matrix.array_[root_row][root_row]);
         for (size_t curr_row = root_row + 1; curr_row < ut_matrix.rows_; curr_row++) {
@@ -339,28 +338,36 @@ std::tuple<Matrix, Matrix, Matrix, size_t> Matrix::PTREF() const {
                 max_val = std::abs(curr_val);
             }
         }
-        //to change--implementing an iterative method to reduce runtime
         if (max_row != root_row) {
-            epermutation_matrix.array_[root_row][root_row] = 0;
-            epermutation_matrix.array_[max_row][max_row] = 0;
-            epermutation_matrix.array_[root_row][max_row] = 1;
-            epermutation_matrix.array_[max_row][root_row] = 1;
+            for (size_t curr_col = 0; curr_col < ut_matrix.cols_; curr_col++) {
+                double permutation_swap = permutation_matrix.array_[max_row][curr_col];
+                double ut_matrix_swap = ut_matrix.array_[max_row][curr_col];
+                permutation_matrix.array_[max_row][curr_col] = permutation_matrix.array_[root_row][curr_col];
+                ut_matrix.array_[max_row][curr_col] = ut_matrix.array_[root_row][curr_col];
+                permutation_matrix.array_[root_row][curr_col] = permutation_swap;
+                ut_matrix.array_[root_row][curr_col] = ut_matrix_swap;
+            }
+            for (size_t curr_row = 0; curr_row < ut_matrix.rows_; curr_row++) {
+                double lt_matrix_swap = lt_matrix.array_[curr_row][max_row];
+                lt_matrix.array_[curr_row][max_row] = lt_matrix.array_[curr_row][root_row];
+                lt_matrix.array_[curr_row][root_row] = lt_matrix_swap;
+            }
             row_exchanges++;
         }
-        permutation_matrix = epermutation_matrix * permutation_matrix;
-        ut_matrix = epermutation_matrix * ut_matrix;
-    }
-    for (size_t root_row = 0; root_row < ut_matrix.rows_ - 1; root_row++) {
+        Matrix inv_combination_matrix = Matrix(rows_, rows_, 1, true);
         for (size_t curr_row = root_row + 1; curr_row < ut_matrix.rows_; curr_row++) {
             double curr_val = ut_matrix.array_[curr_row][root_row];
             double curr_div = ut_matrix.array_[root_row][root_row];
             double curr_scalar = (curr_val / curr_div);
-            lt_matrix.array_[curr_row][root_row] += curr_scalar;
+            inv_combination_matrix.array_[curr_row][root_row] += curr_scalar;
             for (size_t curr_col = 0; curr_col < ut_matrix.cols_; curr_col++) {
-                ut_matrix.array_[curr_row][curr_col] -= (curr_scalar * ut_matrix.array_[root_row][curr_col]); 
+                ut_matrix.array_[curr_row][curr_col] -= (curr_scalar * ut_matrix.array_[root_row][curr_col]);
             }
         }
+        //Determine how to optimize this Matrix Multiplication
+        lt_matrix = lt_matrix * inv_combination_matrix;
     }
+    lt_matrix = permutation_matrix * lt_matrix;
     std::tuple<Matrix, Matrix, Matrix, size_t> matrix_tuple{permutation_matrix, lt_matrix, ut_matrix, row_exchanges};
     return (matrix_tuple);
 }
@@ -468,4 +475,16 @@ Matrix Matrix::RandomMatrixInt(size_t seed, size_t num_rows, size_t num_cols, in
     }
     Matrix new_matrix = Matrix(num_rows, num_cols, init_array);
     return (new_matrix);
+}
+
+Matrix Matrix::PermutationInverse(const Matrix& matrix) {
+    Matrix perm_inv = Matrix(matrix.rows_, matrix.cols_, 0, true);
+    for (size_t curr_row = 0; curr_row < matrix.rows_; curr_row++) {
+        for (size_t curr_col = 0; curr_col < matrix.cols_; curr_col++) {
+            if (matrix.array_[curr_row][curr_col] == 1) {
+                perm_inv.array_[curr_col][curr_row] = 1;
+            }
+        }
+    }
+    return (perm_inv);
 }
