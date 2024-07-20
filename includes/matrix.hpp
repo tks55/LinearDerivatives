@@ -64,6 +64,9 @@ class Matrix {
         //Helper Functions
         std::tuple<Matrix, Matrix, Matrix, size_t> PTREF() const;
         static Matrix PermutationInverse(const Matrix& matrix);
+        size_t FindMaxRow(const size_t root_row) const;
+        void SwapRows(const size_t row1, const size_t row2);
+        void SwapCols(const size_t col1, const size_t col2);
 };
 
 #endif

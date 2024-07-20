@@ -329,43 +329,39 @@ std::tuple<Matrix, Matrix, Matrix, size_t> Matrix::PTREF() const {
     Matrix ut_matrix = Matrix(*this);
     size_t row_exchanges = 0;
     for (size_t root_row = 0; root_row < ut_matrix.rows_ - 1; root_row++) {
-        size_t max_row = root_row;
-        size_t max_val = std::abs(ut_matrix.array_[root_row][root_row]);
-        for (size_t curr_row = root_row + 1; curr_row < ut_matrix.rows_; curr_row++) {
-            double curr_val = ut_matrix.array_[curr_row][root_row];
-            if (std::abs(curr_val) > max_val) {
-                max_row = curr_row;
-                max_val = std::abs(curr_val);
-            }
-        }
+        size_t max_row = ut_matrix.FindMaxRow(root_row);
         if (max_row != root_row) {
-            for (size_t curr_col = 0; curr_col < ut_matrix.cols_; curr_col++) {
-                double permutation_swap = permutation_matrix.array_[max_row][curr_col];
-                double ut_matrix_swap = ut_matrix.array_[max_row][curr_col];
-                permutation_matrix.array_[max_row][curr_col] = permutation_matrix.array_[root_row][curr_col];
-                ut_matrix.array_[max_row][curr_col] = ut_matrix.array_[root_row][curr_col];
-                permutation_matrix.array_[root_row][curr_col] = permutation_swap;
-                ut_matrix.array_[root_row][curr_col] = ut_matrix_swap;
-            }
-            for (size_t curr_row = 0; curr_row < ut_matrix.rows_; curr_row++) {
-                double lt_matrix_swap = lt_matrix.array_[curr_row][max_row];
-                lt_matrix.array_[curr_row][max_row] = lt_matrix.array_[curr_row][root_row];
-                lt_matrix.array_[curr_row][root_row] = lt_matrix_swap;
-            }
+            permutation_matrix.SwapRows(max_row, root_row);
+            ut_matrix.SwapRows(max_row, root_row);
+            lt_matrix.SwapCols(max_row, root_row);
             row_exchanges++;
         }
-        Matrix inv_combination_matrix = Matrix(rows_, rows_, 1, true);
+        double* row_scalars = new double[rows_];
+        double* row_vals = new double[rows_];
+        for (size_t curr_row = 0; curr_row < rows_; curr_row++) {
+            row_vals[curr_row] = 0;
+            row_scalars[curr_row] = 0;
+        }
+        row_scalars[root_row] = 1;
         for (size_t curr_row = root_row + 1; curr_row < ut_matrix.rows_; curr_row++) {
             double curr_val = ut_matrix.array_[curr_row][root_row];
             double curr_div = ut_matrix.array_[root_row][root_row];
             double curr_scalar = (curr_val / curr_div);
-            inv_combination_matrix.array_[curr_row][root_row] += curr_scalar;
+            row_scalars[curr_row] += curr_scalar;
             for (size_t curr_col = 0; curr_col < ut_matrix.cols_; curr_col++) {
                 ut_matrix.array_[curr_row][curr_col] -= (curr_scalar * ut_matrix.array_[root_row][curr_col]);
             }
         }
-        //Determine how to optimize this Matrix Multiplication
-        lt_matrix = lt_matrix * inv_combination_matrix;
+        for (size_t curr_col = 0; curr_col < cols_; curr_col++) {
+            for (size_t curr_row = 0; curr_row < rows_; curr_row++) {
+                row_vals[curr_row] += row_scalars[curr_col] * lt_matrix.array_[curr_row][curr_col];
+            }
+        }
+        for (size_t curr_row = 0; curr_row < rows_; curr_row++) {
+            lt_matrix.array_[curr_row][root_row] = row_vals[curr_row];
+        }
+        delete[] row_scalars;
+        delete[] row_vals;
     }
     lt_matrix = permutation_matrix * lt_matrix;
     std::tuple<Matrix, Matrix, Matrix, size_t> matrix_tuple{permutation_matrix, lt_matrix, ut_matrix, row_exchanges};
@@ -415,6 +411,9 @@ Matrix Matrix::Inv() const {
 
 /*Parameters: none; Desc: Returns the REF of all non-singular, and some singular matrices.*/
 Matrix Matrix::REF() const {
+    if (rows_ != cols_) {
+        throw std::invalid_argument("UNABLE TO CURRENTLY DETERMINE NON-SQUARE REF!");
+    }
     std::tuple<Matrix, Matrix, Matrix, size_t> matrix_tuple = this->PTREF();
     Matrix ref_matrix = std::get<2>(matrix_tuple);
     for (size_t curr_row = 0; curr_row < ref_matrix.rows_; curr_row++) {
@@ -477,6 +476,8 @@ Matrix Matrix::RandomMatrixInt(size_t seed, size_t num_rows, size_t num_cols, in
     return (new_matrix);
 }
 
+/*PRIVATE/HELPER FUNCTION; Parameters: const Matrix& matrix; Desc: Returns the inverse of a square (n x n)
+permutation matrix.*/
 Matrix Matrix::PermutationInverse(const Matrix& matrix) {
     Matrix perm_inv = Matrix(matrix.rows_, matrix.cols_, 0, true);
     for (size_t curr_row = 0; curr_row < matrix.rows_; curr_row++) {
@@ -487,4 +488,39 @@ Matrix Matrix::PermutationInverse(const Matrix& matrix) {
         }
     }
     return (perm_inv);
+}
+
+/*PRIVATE/HELPER FUNCTION; Parameters: const size_t root_row; Desc: Returns the index of the row containing
+the maximum absolute value in a given column.*/
+size_t Matrix::FindMaxRow(const size_t root_row) const {
+    size_t max_row = root_row;
+    double max_val = std::abs(this->array_[root_row][root_row]);
+    for (size_t curr_row = root_row + 1; curr_row < this->rows_; curr_row++) {
+        double curr_val = this->array_[curr_row][root_row];
+        if (std::abs(curr_val) > max_val) {
+            max_row = curr_row;
+            max_val = std::abs(curr_val);
+        }
+    }
+    return (max_row);
+}
+
+/*PRIVATE/HELPER FUNCTION; Parameters: const size_t row1, const size_t row2; Desc: Swaps the values of two
+rows, by given row indices.*/
+void Matrix::SwapRows(const size_t row1, const size_t row2) {
+    for (size_t curr_col = 0; curr_col < this->cols_; curr_col++) {
+        double matrix_swap = this->array_[row1][curr_col];
+        this->array_[row1][curr_col] = this->array_[row2][curr_col];
+        this->array_[row2][curr_col] = matrix_swap;
+    } 
+}
+
+/*PRIVATE/HELPER FUNCTION; Parameters: const size_t col1, const size_t col2; Desc: Swaps the values of two
+columns, by given column indices.*/
+void Matrix::SwapCols(const size_t col1, const size_t col2) {
+    for (size_t curr_row = 0; curr_row < this->rows_; curr_row++) {
+        double matrix_swap = this->array_[curr_row][col1];
+        this->array_[curr_row][col1] = this->array_[curr_row][col2];
+        this->array_[curr_row][col2] = matrix_swap;
+    }
 }
