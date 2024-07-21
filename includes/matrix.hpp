@@ -20,16 +20,24 @@ class Matrix {
         Matrix& operator=(Matrix&& rhs);
 
         //Interface Functions
-        std::string ToString() const;    
+        std::string ToString() const;
+        static std::pair<size_t, size_t> GetDims(const Matrix& matrix);    
         std::pair<size_t, size_t> GetDims() const;
+        static void ChangeEntry(Matrix& matrix, size_t row, size_t col, double val);
         void ChangeEntry(size_t row, size_t col, double val);
+        static Matrix T(const Matrix& matrix);
         Matrix T() const;
+        static double Det(const Matrix& matrix);
         double Det() const;
-        Matrix REF() const;
-        double GetEntry(size_t row, size_t col) const;
+        static Matrix Inv(const Matrix& matrix);
         Matrix Inv() const;
+        static Matrix REF(const Matrix& matrix);
+        Matrix REF() const;
+        static double GetEntry(const Matrix& matrix, size_t row, size_t col);
+        double GetEntry(size_t row, size_t col) const;
         static Matrix RandomMatrixFloat(size_t seed, size_t num_rows = 2, size_t num_cols = 2, double lower_bound = 0, double upper_bound = 10);
         static Matrix RandomMatrixInt(size_t seed, size_t num_rows = 2, size_t num_cols = 2, int lower_bound = 0, int upper_bound = 10);
+        std::tuple<Matrix, Matrix, Matrix> PLUDecomp() const;
 
         //To Implement
         Matrix RREF() const;

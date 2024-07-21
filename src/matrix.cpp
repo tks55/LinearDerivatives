@@ -134,19 +134,31 @@ std::string Matrix::ToString() const {
     return (output);
 }
 
-/*Parameters: None; Desc: Returns the dimensions of the current matrix in (rows, cols) format.*/
-std::pair<size_t, size_t> Matrix::GetDims() const {
-    std::pair<double, double> dims{rows_, cols_};
+/*Parameters: const Matrix& matrix; Desc: Returns the dimensions of a given matrix in (rows, cols) format.*/
+std::pair<size_t, size_t> Matrix::GetDims(const Matrix& matrix) {
+    std::pair<size_t, size_t> dims{matrix.rows_, matrix.cols_};
     return (dims);
 }
 
-/*Parameters: size_t row, size_t col, double val; Desc: Changes the value of a given matrix at (row, col) to
-val. Zero-Indexed.*/
-void Matrix::ChangeEntry(size_t row, size_t col, double val) {
-    if (((row < 0) || (row >= rows_)) || ((col < 0) || (col >= cols_))) {
+/*Parameters: None; Desc: Returns the dimensions of the current matrix in (rows, cols) format.*/
+std::pair<size_t, size_t> Matrix::GetDims() const {
+    std::pair<size_t, size_t> dims = GetDims(*this);
+    return (dims);
+}
+
+/*Parameters: Matrix& matrix, size_t row, size_t col, double val; Desc: Changes the value of a given matrix at 
+(row, col) to val. Zero-Indexed.*/
+void Matrix::ChangeEntry(Matrix& matrix, size_t row, size_t col, double val) {
+    if (((row < 0) || (row >= matrix.rows_)) || ((col < 0) || (col >= matrix.cols_))) {
         throw std::invalid_argument("OUT OF BOUNDS ERROR!");
     }
-    array_[row][col] = val;
+    matrix.array_[row][col] = val;
+}
+
+/*Parameters: size_t row, size_t col, double val; Desc: Changes the value of the current matrix at (row, col) to
+val. Zero-Indexed.*/
+void Matrix::ChangeEntry(size_t row, size_t col, double val) {
+    ChangeEntry(*this, row, col, val);
 }
 
 /*Parameters: const Matrix& matrix, const double scalar; Desc: Multiplies all values of the current matrix
@@ -284,28 +296,34 @@ bool Matrix::operator==(const Matrix& rhs) const {
     return (true);
 }
 
-/*Parameters: None; Desc: Returns the Transpose of the current matrix.*/
-Matrix Matrix::T() const {
-    Matrix new_matrix = Matrix(cols_, rows_, 0, false);
-    for (size_t curr_row = 0; curr_row < rows_; curr_row++) {
-        for (size_t curr_col = 0; curr_col < cols_; curr_col++) {
-            new_matrix.array_[curr_col][curr_row] = array_[curr_row][curr_col];
+/*Parameters: const Matrix& matrix; Desc: Returns the Transpose of a given matrix.*/
+Matrix Matrix::T(const Matrix& matrix) {
+    Matrix new_matrix = Matrix(matrix.cols_, matrix.rows_, 0, false);
+    for (size_t curr_row = 0; curr_row < matrix.rows_; curr_row++) {
+        for (size_t curr_col = 0; curr_col < matrix.cols_; curr_col++) {
+            new_matrix.array_[curr_col][curr_row] = matrix.array_[curr_row][curr_col];
         }
     }
     return (new_matrix);
 }
 
-/*Parameters: None; Desc: Returns the determinant of the current square (n x n) matrix.*/
-double Matrix::Det() const {
-    if (rows_ != cols_) {
+/*Parameters: None; Desc: Returns the Transpose of the current matrix.*/
+Matrix Matrix::T() const {
+    Matrix new_matrix = T(*this);
+    return (new_matrix);
+}
+
+/*Parameters: const Matrix& matrix; Desc: Returns the determinant of a given square (n x n) matrix.*/
+double Matrix::Det(const Matrix& matrix) {
+    if (matrix.rows_ != matrix.cols_) {
         throw std::invalid_argument("CANNOT DETERMINE DETERMINANT--NONSQUARE MATRIX!");
-    } else if (rows_ == 1) {
-        return (array_[0][0]);
-    } else if (rows_ == 2) {
-        return (array_[0][0] * array_[1][1]) - (array_[0][1] * array_[1][0]);
+    } else if (matrix.rows_ == 1) {
+        return (matrix.array_[0][0]);
+    } else if (matrix.rows_ == 2) {
+        return (matrix.array_[0][0] * matrix.array_[1][1]) - (matrix.array_[0][1] * matrix.array_[1][0]);
     }
     double determinant = 1.0;
-    std::tuple<Matrix, Matrix, Matrix, size_t> matrix_tuple = this->PTREF();
+    std::tuple<Matrix, Matrix, Matrix, size_t> matrix_tuple = matrix.PTREF();
     Matrix permute_matrix = std::get<0>(matrix_tuple);
     Matrix ref_matrix = std::get<2>(matrix_tuple);
     size_t row_swaps = std::get<3>(matrix_tuple);
@@ -318,6 +336,12 @@ double Matrix::Det() const {
     if (row_swaps % 2 == 1) {
         determinant *= -1;
     }
+    return (determinant);
+}
+
+/*Parameters: None; Desc: Returns the determinant of the current square (n x n) matrix.*/
+double Matrix::Det() const {
+    double determinant = Det(*this);
     return (determinant);
 }
 
@@ -368,17 +392,17 @@ std::tuple<Matrix, Matrix, Matrix, size_t> Matrix::PTREF() const {
     return (matrix_tuple);
 }
 
-/*Parameters: none; Desc: Returns the inverse of an invertible (non-singular) Matrix.*/
-Matrix Matrix::Inv() const {
-    std::tuple<Matrix, Matrix, Matrix, double> matrix_tuple = this->PTREF();
+/*Parameters: const Matrix& matrix; Desc: Returns the inverse of a given invertible (non-singular) Matrix.*/
+Matrix Matrix::Inv(const Matrix& matrix) {
+    std::tuple<Matrix, Matrix, Matrix, double> matrix_tuple = matrix.PTREF();
     Matrix permutation_matrix = std::get<0>(matrix_tuple);
     Matrix lt_matrix = std::get<1>(matrix_tuple);
     Matrix ut_matrix = std::get<2>(matrix_tuple);
-    Matrix ut_matrix_inverse = Matrix(rows_, rows_, 1, true);
-    Matrix lt_matrix_inverse = Matrix(rows_, rows_, 1, true);
-    for (size_t root_row = 0; root_row < rows_ - 1; root_row++) {
+    Matrix ut_matrix_inverse = Matrix(matrix.rows_, matrix.rows_, 1, true);
+    Matrix lt_matrix_inverse = Matrix(matrix.rows_, matrix.rows_, 1, true);
+    for (size_t root_row = 0; root_row < matrix.rows_ - 1; root_row++) {
         size_t root_row_inv = ut_matrix.rows_ - root_row - 1;
-        for (size_t curr_row = root_row + 1; curr_row < rows_; curr_row++) {
+        for (size_t curr_row = root_row + 1; curr_row < matrix.rows_; curr_row++) {
             size_t curr_row_inv = ut_matrix.rows_ - curr_row - 1;
             double curr_val_lt = lt_matrix.array_[curr_row][root_row];
             double curr_div_lt = lt_matrix.array_[root_row][root_row];
@@ -389,7 +413,7 @@ Matrix Matrix::Inv() const {
             }
             double curr_scalar_lt = (curr_val_lt / curr_div_lt);
             double curr_scalar_ut = (curr_val_ut / curr_div_ut);
-            for (size_t curr_col = 0; curr_col < cols_; curr_col++) {
+            for (size_t curr_col = 0; curr_col < matrix.cols_; curr_col++) {
                 lt_matrix.array_[curr_row][curr_col] -= (curr_scalar_lt * lt_matrix.array_[root_row][curr_col]); 
                 ut_matrix.array_[curr_row_inv][curr_col] -= (curr_scalar_ut * ut_matrix.array_[root_row_inv][curr_col]); 
                 lt_matrix_inverse.array_[curr_row][curr_col] -= (curr_scalar_lt * lt_matrix_inverse.array_[root_row][curr_col]);
@@ -409,12 +433,19 @@ Matrix Matrix::Inv() const {
     return (inverse_matrix);
 }
 
-/*Parameters: none; Desc: Returns the REF of all non-singular, and some singular matrices.*/
-Matrix Matrix::REF() const {
-    if (rows_ != cols_) {
+/*Parameters: none; Desc: Returns the inverse of the current invertible (non-singular) Matrix.*/
+Matrix Matrix::Inv() const {
+    Matrix inverse_matrix = Inv(*this);
+    return (inverse_matrix);
+}
+
+/*Parameters: const Matrix& matrix; Desc: Returns the REF of a given matrix (works for all non-singular, and some 
+singular matrices)*/
+Matrix Matrix::REF(const Matrix& matrix) {
+    if (matrix.rows_ != matrix.cols_) {
         throw std::invalid_argument("UNABLE TO CURRENTLY DETERMINE NON-SQUARE REF!");
     }
-    std::tuple<Matrix, Matrix, Matrix, size_t> matrix_tuple = this->PTREF();
+    std::tuple<Matrix, Matrix, Matrix, size_t> matrix_tuple = matrix.PTREF();
     Matrix ref_matrix = std::get<2>(matrix_tuple);
     for (size_t curr_row = 0; curr_row < ref_matrix.rows_; curr_row++) {
         for (size_t curr_col = 0; curr_col < ref_matrix.cols_; curr_col++) {
@@ -426,9 +457,24 @@ Matrix Matrix::REF() const {
     return (ref_matrix);
 }
 
-/*Parameters: size_t row, size_t col; Desc: Returns the value of a given matrix at (row, col). Zero-Indexed.*/
+/*Parameters: none; Desc: Returns the REF of the current matrix (works for all non-singular, and some 
+singular matrices)*/
+Matrix Matrix::REF() const {
+    Matrix ref_matrix = REF(*this);
+    return (ref_matrix);
+}
+
+/*Parameters: const Matrix& matrix, size_t row, size_t col; Desc: Returns the value of a given
+matrix at (row, col). Zero-Indexed.*/
+double Matrix::GetEntry(const Matrix& matrix, size_t row, size_t col) {
+    double entry_value = matrix.array_[row][col];
+    return (entry_value);
+}
+
+/*Parameters: size_t row, size_t col; Desc: Returns the value of the current matrix at (row, col). 
+Zero-Indexed.*/
 double Matrix::GetEntry(size_t row, size_t col) const {
-    double entry_value = array_[row][col];
+    double entry_value = GetEntry(*this, row, col);
     return (entry_value);
 }
 
@@ -523,4 +569,11 @@ void Matrix::SwapCols(const size_t col1, const size_t col2) {
         this->array_[curr_row][col1] = this->array_[curr_row][col2];
         this->array_[curr_row][col2] = matrix_swap;
     }
+}
+
+/*Parameters: none; Desc: Returns the PLU Decomposition of the current square (n x n) matrix.*/
+std::tuple<Matrix, Matrix, Matrix> Matrix::PLUDecomp() const {
+    std::tuple<Matrix, Matrix, Matrix, size_t> plus_decomp = this->PTREF();
+    std::tuple<Matrix, Matrix, Matrix> plu_decomp{std::get<0>(plus_decomp), std::get<1>(plus_decomp), std::get<2>(plus_decomp)};
+    return (plu_decomp);
 }
