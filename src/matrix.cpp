@@ -577,3 +577,9 @@ std::tuple<Matrix, Matrix, Matrix> Matrix::PLUDecomp() const {
     std::tuple<Matrix, Matrix, Matrix> plu_decomp{std::get<0>(plus_decomp), std::get<1>(plus_decomp), std::get<2>(plus_decomp)};
     return (plu_decomp);
 }
+
+/*Parameters: none, Desc: Returns the (constant) precision delta established to determine equality
+between floating point values.*/
+double Matrix::GetPrecisionDelta() {
+    return (kPrecisionDelta);
+}

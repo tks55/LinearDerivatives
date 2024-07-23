@@ -112,3 +112,15 @@ double Vector::GetEntry(size_t entry) const {
     double val = this->Matrix::GetEntry(entry, 0);
     return (val);
 }
+
+/*Parameters: const Vector& vect; Desc: Returns the size of a given vector.*/
+size_t Vector::size(const Vector& vect) {
+    size_t rows = vect.GetDims().first;
+    return (rows);
+}
+
+/*Parameters: none; Desc: Returns the size of the current vector.*/
+size_t Vector::size() const {
+    size_t rows = size(*this);
+    return (rows);
+}

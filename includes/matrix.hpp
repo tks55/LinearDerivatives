@@ -5,6 +5,7 @@
 #include <string>
 #include <tuple>
 #include <random>
+
 class Matrix {
     public:
 
@@ -38,6 +39,7 @@ class Matrix {
         static Matrix RandomMatrixFloat(size_t seed, size_t num_rows = 2, size_t num_cols = 2, double lower_bound = 0, double upper_bound = 10);
         static Matrix RandomMatrixInt(size_t seed, size_t num_rows = 2, size_t num_cols = 2, int lower_bound = 0, int upper_bound = 10);
         std::tuple<Matrix, Matrix, Matrix> PLUDecomp() const;
+        static double GetPrecisionDelta();
 
         //To Implement
         Matrix RREF() const;
@@ -67,7 +69,7 @@ class Matrix {
         double** array_;
 
         //Constants
-        const double kPrecisionDelta = 0.00000001;
+        static constexpr double kPrecisionDelta = 0.00000001;
 
         //Helper Functions
         std::tuple<Matrix, Matrix, Matrix, size_t> PTREF() const;

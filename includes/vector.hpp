@@ -23,6 +23,8 @@ class Vector : public Matrix {
         static Vector RandomVectorInt(size_t seed, size_t size = 2, int lower_bound = 0, int upper_bound = 10);
         void ChangeEntry(size_t entry, double val);
         double GetEntry(size_t entry) const;
+        static size_t size(const Vector& vect);
+        size_t size() const;
 
     private:
         using Matrix::Det;
@@ -30,6 +32,7 @@ class Vector : public Matrix {
         using Matrix::Inv;
         using Matrix::RandomMatrixFloat;
         using Matrix::RandomMatrixInt;
+        using Matrix::GetDims;
 };
 
 #endif
