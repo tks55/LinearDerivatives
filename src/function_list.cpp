@@ -85,7 +85,7 @@ std::string FunctionList::ListFunctions(const FunctionList& fl) {
     return (output_string);
 }
 
-/*Parameters: none Desc: Returns a string listing all the keys stored in the map of the current FunctionList.*/
+/*Parameters: none; Desc: Returns a string listing all the keys stored in the map of the current FunctionList.*/
 std::string FunctionList::ListFunctions() {
     std::string output_string = ListFunctions(*this);
     return (output_string);
