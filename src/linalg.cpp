@@ -86,3 +86,18 @@ Matrix LinAlg::ToMatrix(Vector* column_vectors, size_t num_vectors) {
     delete[] column_vectors;
     return (return_matrix);
 }
+
+/*Parameters: const Matrix& matrix, std::function<double(double)> function; Desc: Applies a given function to all of the values
+of an input Matrix, returning the modified/transformed Matrix.*/
+Matrix LinAlg::ApplyFunction(const Matrix& matrix, std::function<double(double)> function) {
+    Matrix output_matrix = Matrix(matrix);
+    std::pair<size_t, size_t> dims = matrix.GetDims();
+    for (size_t curr_row = 0; curr_row < dims.first; curr_row++) {
+        for (size_t curr_col = 0; curr_col < dims.second; curr_col++) {
+            double curr_val = output_matrix.GetEntry(curr_row, curr_col);
+            double modified_val = function(curr_val);
+            output_matrix.ChangeEntry(curr_row, curr_col, modified_val);
+        }
+    }
+    return (output_matrix);
+}

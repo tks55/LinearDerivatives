@@ -5,6 +5,7 @@
 #include "vector.hpp"
 #include <tuple>
 #include <utility>
+#include <functional>
 
 class LinAlg {
 
@@ -16,6 +17,7 @@ class LinAlg {
         static std::pair<double, Vector> PowerIter(const Matrix& matrix, size_t max_iter = 10000);
         static Vector* ToColumnVectors(const Matrix& matrix);
         static Matrix ToMatrix(Vector* column_vectors, size_t num_vectors);
+        static Matrix ApplyFunction(const Matrix& matrix, std::function<double(double)> function);
 
         //To Implement
         static std::pair<Matrix, Matrix> QRDecomp(const Matrix& matrix);
