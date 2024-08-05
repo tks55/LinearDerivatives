@@ -87,6 +87,9 @@ std::map<std::string, size_t> FileReader::ColumnToIndex(std::string first_line) 
     size_t curr_val = 0;
     std::string col_name;
     while (std::getline(first_line_stream, col_name, ',')) {
+        if (col_name.back() == '\r') {
+            col_name = col_name.substr(0, col_name.size() - 1);
+        }
         column_names[col_name] = curr_val;
         curr_val++;
     }
@@ -124,7 +127,7 @@ std::tuple<std::string, std::vector<std::string>, std::pair<std::string, Vector>
             continue;
         } else if (function_line.substr(0, 7) == "PREDICT") {
             predict_column = function_line.substr(8, function_line.size() - 9);
-            size_t predict_vector_position = (column_names[predict_column] - 1);
+            size_t predict_vector_position = (column_names.at(predict_column) - 1);
             predict_vector = column_vector_list[predict_vector_position];
             predicted_info = {predict_column, predict_vector};
             continue;
@@ -143,7 +146,7 @@ std::tuple<std::string, std::vector<std::string>, std::pair<std::string, Vector>
                 variable = variable.substr(0, variable.size() - 1);
             }
             std::string transformed_variable_index = (current_key + "(" + variable + ")");
-            size_t current_vect_position = (column_names[variable] - 1);
+            size_t current_vect_position = (column_names.at(variable) - 1);
             Vector current_vect = column_vector_list[current_vect_position];
             key_transform[transformed_variable_index] = LinAlg::ApplyFunction(current_vect, current_function);
         }
