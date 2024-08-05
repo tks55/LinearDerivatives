@@ -4,7 +4,7 @@ A C++ Program designed by [tks55](https://github.com/tks55) to fit regression li
 
 ## Current Stage of Development
 
-Pre-Alpha
+Alpha
 
 ## Current Features
 
@@ -28,14 +28,38 @@ A dynamic Vector class allowing for:
 - Calculating a Normalized/Unitized Vector
 - Generation of a Random Vector (given a seed value) of either Floats or Integers
 
+A LinAlg class allowing for: 
+
+- Numerically solving a system encoded by a Augmented Matrix
+- Calculation of a PLU Decomposition
+- Calculation of a dominant eigenvalue and its corresponding eigenvector via power iteration
+- Transformation of a Matrix into an array of column Vectors
+- Transformation of an array of column Vectors into a Matrix
+- The application of an input function (e.g. Quadratic, Sin) on all values of a given matrix
+
+A FunctionList class allowing for:
+
+- The storage of functions of input and output double in a list stored by the object
+- The addition of new functions to the predefined list/map
+- The deletion of functions from the list/map
+- The listing of all functions stored in the object
+- Easy generation of functions corresponding to elements to various powers (e.g. quadratic, cubic)
+
+A FileReader class allowing for:
+
+- The reading of a user-defined setup file, set as params.txt
+- The reading and processing of .csv files into a matrix
+- The ability to apply and modify matrices derived from .csv files according to user input specified in params.txt
+
+A Regression class allowing for:
+
+- Linear Regression to be applied on user-defined and modified data
+
 ## Future Features
 
 - Calculating the Reduced Row Echelon Form of a Matrix
-- Numerically solving a system encoded by a Augmented Matrix
-- Calculating various decompsitions (e.g. PLU, SVD)
-- Computationally crafting Design Matrices based on User Input
-- Solving the Normal Equations of Design Matrices to determine Least-Squared Solutions according to user specification
-- Addition of new constructors for the Matrix class to input user data via an input file.
+- Calculating various other decompsitions (e.g. QR, SVD)
+- Addition of new ML Techniques (e.g. K-Means Clustering, PCA) to further analyze input data
 - Addition of new functions to output requested data into an output file
 - Requesting stock data from a Stock API to be used in further data analysis
 
@@ -48,3 +72,4 @@ A dynamic Vector class allowing for:
 ## Known Errors
 - The REF Function is currently unable to process certain types of singular matrices (e.g. repeated/zero rows, zero column vectors)
 - THE REF, Det, and Inv Functions are unable to process some very rare edge cases (e.g. some lower triangular matrices).
+- Slight errors with reading input files
